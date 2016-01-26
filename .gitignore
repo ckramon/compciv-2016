@@ -1,3 +1,5 @@
 .DS_Store
 creds_*
 tempdata/
+_pycache_/
+*.py[cod]
