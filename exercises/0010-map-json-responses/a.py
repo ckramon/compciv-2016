@@ -1,59 +1,40 @@
 import requests
 import os
 
-os.makedirs('googlemaps')
+os.makedirs('tempdata/googlemaps', exist_ok=True)
+os.makedirs('tempdata/mapzen', exist_ok=True)
+
 
 zipurl = 'http://www.compciv.org/files/datadumps/apis/googlemaps/geocode-stanford.json'
-
-print("Downloading: http://www.compciv.org/files/datadumps/apis/googlemaps/geocode-stanford.json")
+print("Downloading:", zipurl)
 resp = requests.get(zipurl)
-
-zname = os.path.join('googlemaps','stanford.json') 
+zdir = os.path.join('tempdata', 'googlemaps')
+zname = os.path.join(zdir, 'stanford.json') 
+print("Writing file:", zname)
 zfile = open(zname, 'w')
 zfile.write(resp.text)
 zfile.close()
+# ok counting things
+line_num = resp.text.count("\n")
+char_count = len(resp.text)
+print(zname, "has", line_num, "lines and", char_count, "characters")
 
-print("Writing file: tempdata/googlemaps/stanford.json")
 
-fname = os.path.join('googlemaps', 'stanford.json')
-googlemapsfile = open(fname, 'r')
-line_num = 0
-for x in googlemapsfile:
-    line_num += 1
-def count_letters(word, char):
-    count = 0
-    while count <= len(word):
-        for char in word:
-            if char == word[count]:
-                count += 1
-            return count
-
-googlemapsfile.close()
-
-print(fname, "has", line_num, "lines and", count_letters "characters")
-
-import requests
-import os
-
-os.makedirs('mapzen')
+#########################
 
 zipurl = 'http://www.compciv.org/files/datadumps/apis/mapzen/search-stanford.json'
-
-print("Downloading: http://www.compciv.org/files/datadumps/apis/mapzen/search-stanford.json")
+print("Downloading:", zipurl)
 resp = requests.get(zipurl)
 
-zname = os.path.join('mapzen', 'stanford.json') 
+zdir = os.path.join('tempdata', 'mapzen')
+zname = os.path.join(zdir, 'stanford.json') 
+print("Writing file:", zname)
+
 zfile = open(zname, 'w')
 zfile.write(resp.text)
 zfile.close()
 
-print("Writing file: tempdata/mapzen/stanford.json")
+line_num = resp.text.count("\n")
+char_count = len(resp.text)
 
-fname = os.path.join('mapzen', 'stanford.json')
-mapzenfile = open(fname, 'r')
-line_num = 0
-for x in mapzenfile:
-    line_num += 1
-mapzenfile.close()
-
-print(fname, "has", line_num, "lines and", char_count "characters")
+print(zname, "has", line_num, "lines and", char_count, "characters")
