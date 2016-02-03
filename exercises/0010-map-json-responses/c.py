@@ -8,5 +8,7 @@ f = open(zname, 'r')
 txt = f.read()
 f.close()
 
-for result in txt['result']:
+mydict = json.loads(txt)
+
+for result in mydict['results']:
     print(result['formatted_address'])
