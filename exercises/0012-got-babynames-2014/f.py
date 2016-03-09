@@ -5,29 +5,19 @@ os.makedirs('tempdata', exist_ok=True)
 
 zname = os.path.join('tempdata', "ssa-babynames-nationwide-2014.txt")
 
-allmalebabies = 0
-allfemalebabies = 0
+mydict = []
+with open(zname) as f:
+    for line in f:
+        name, sex, babies = line.strip().split(',')
+        letter = name[-1]
+        if mydict.get(letter):
+            mydict[letter] += int(babies)
+        else:
+            mydict[letter] = int(babies)
 
-
-# with open(zname) as f:
-#     for line in f:
-#         name, sex, babies = line.strip().split(',')
-#         if sex == 'M':
-#             allmalebabies = int(babies) + allmalebabies
-
-#         if sex == 'F':
-#              allfemalebabies = int(babies) + allfemalebabies
-mydict = requests.loads(txt)
-for line in fileobject:
-    name, sex, babies = line.strip().split(',')
-    last_letter = name[-1]
-    if mydict.get(last_letter):
-        mydict[last_letter] += int(babies)
-    else:
-        mydict[last_letter] = int(babies)
-
-
-print(last_letter, ":", int(babies))
+for letter in string.ascii_lowercase:
+    total = mydict[letter]
+    print(mydict, ":", total)
 
 
 
