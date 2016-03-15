@@ -8,15 +8,12 @@ def read_mapzen_credentials():
 
 
 def fetch_mapzen_response(location):
-    """
-    `location` is a string that will be passed onto Mapzen API for geocoding
-    returns a text string containing JSON-formatted data from Mapzen
-    """
+        """
+        `location` is a string that will be passed onto Mapzen API for geocoding
+        returns a text string containing JSON-formatted data from Mapzen
+        """
 
-    # ignore the location string for now
-    # SAMPLE_DATA_URL = 'http://www.compciv.org/files/datadumps/apis/mapzen/search-stanford.json'
-    # resp = requests.get(SAMPLE_DATA_URL)
-    # return resp.text
+    
     mykey = read_mapzen_credentials()
     my_params = {'text': location, 'api_key': mykey}
     resp = requests.get(SOME_URL, params = my_params)
