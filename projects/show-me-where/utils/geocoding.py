@@ -8,15 +8,15 @@ def read_mapzen_credentials():
 
 
 def fetch_mapzen_response(location):
-        """
-        `location` is a string that will be passed onto Mapzen API for geocoding
-        returns a text string containing JSON-formatted data from Mapzen
-        """
+    """
+    `location` is a string that will be passed onto Mapzen API for geocoding
+    returns a text string containing JSON-formatted data from Mapzen
+    """
 
-    
+    url = "https://search.mapzen.com/v1/search"
     mykey = read_mapzen_credentials()
     my_params = {'text': location, 'api_key': mykey}
-    resp = requests.get(SOME_URL, params = my_params)
+    resp = requests.get(url, params = my_params)
     return resp.text
 
 def parse_mapzen_response(txt):
@@ -27,7 +27,7 @@ def parse_mapzen_response(txt):
     """
     gdict = {} # just initialize a dict for now, with status of None
     data = json.loads(txt)
-    if data['features']: # it has at least one feature...
+    if data.get('features'): # it has at least one feature...
         gdict['status'] = 'OK'
         feature = data['features'][0] # pick out the first one
         props = feature['properties']  # just for easier reference
@@ -75,15 +75,5 @@ def geocode(location):
     # return the diccionary
     return mydict
 
-def geocode(location):
-    """
-    docstring
-    """
-    mydict = {}
-    mydict['query_text'] = location
-    mydict['latitude'] = 99
-    mydict['longitude'] = -42
-    mydict['confidence'] = 0.01
-    mydict['label'] = "HA HA JK"
-    return mydict
+
 
