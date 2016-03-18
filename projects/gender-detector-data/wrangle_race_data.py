@@ -1,43 +1,43 @@
 from os.path import join, basename
-import json
-BABY_DATA_DIR = join('tempdata', 'babynames')
-WRANGLED_DATA_FILENAME = join(BABY_DATA_DIR, 'wrangledbabynames.json')
-START_YEAR = 1900
-END_YEAR = 1991
-years = list(range(START_YEAR, END_YEAR, 5))
-years.append(2014) # just to get extra names in there
+from csv import DictReader, DictWriter
+DATA_DIR = 'data'
+# DATA_FILE_NAME = join(DATA_DIR, '9-2011-fixed.csv')
+DATA_FILE_NAME = join(DATA_DIR, '9-2014-fixed.csv')
+WRANGLED_HEADERS = ['full_name', 'EMPLOYEE LAST NAME',  'EMPLOYEE FIRST NAME', 'EMPLOYEE RACE', 'EMPLOYEE GENDER', 'GENDER OF CONTACT', 'RACE OF CONTACT', 'TIME OF STOP']
+WRANGLED_FILE_NAME = join(DATA_DIR, 'wrangled-data.csv')
 
-# namesdict sees all names
-namesdict = {}
-for year in years:
-    # get the file for this particular year
-    filename = join(BABY_DATA_DIR, 'yob' + str(year) + '.txt')
-    print("Parsing", filename)
-    # open that file, read it completely in mydict
-    with open(filename, 'r') as thefile:
-        for line in thefile:
-            name, gender, count = line.split(',')
-            if not namesdict.get(name): # need to initialize a dict for this name
-                namesdict[name] = {'F': 0, 'M': 0}
-            # unlike in past exercises, because we're reading multiple years
-            # we will be adding to these dicts more than twice (i.e. M and F, and for every year combo)
-            # so mind that += operator
-            namesdict[name][gender] += int(count)
 
-# Wait till every year is done
-my_awesome_list = []
-# just the same as it was for g.py, except no "year"
-for name, babiescount in namesdict.items():
-    xdict = {'name': name, 'females': babiescount['F'], 'males': babiescount['M']}
-    xdict['total'] = xdict['males'] + xdict['females']
-    if xdict['females'] >= xdict['males']:
-        xdict['gender'] = 'F'
-        xdict['ratio'] = round(100 * xdict['females'] / xdict['total'])
-    else:
-        xdict['gender'] = 'M'
-        xdict['ratio'] = round(100 * xdict['males'] / xdict['total'])
-    # finally, add our new dict, xdict, to my_awesome_list
-    my_awesome_list.append(xdict)
+# open the file 
 
-with open(WRANGLED_DATA_FILENAME, 'w') as j:
-    j.write(json.dumps(my_awesome_list, indent=2))
+with open(DATA_FILE_NAME, 'r') as thefile:
+      original_rows = list(DictReader(thefile))
+
+
+
+wrangled_rows = []
+for row in original_rows:
+    d = {}
+    d['full_name'] = row['EMPLOYEE LAST NAME'] + ', ' + row['EMPLOYEE FIRST NAME']
+    d['EMPLOYEE LAST NAME'] = row['EMPLOYEE LAST NAME']
+    d['EMPLOYEE FIRST NAME'] = row['EMPLOYEE FIRST NAME'].strip()
+    d['EMPLOYEE RACE'] = row['EMPLOYEE RACE']
+    d['RACE OF CONTACT'] = row['RACE OF CONTACT']
+    d['TIME OF STOP'] = row['TIME OF STOP']
+    if row['GENDER'] is '1':
+        d['EMPLOYEE GENDER'] = "M"
+    elif row['GENDER'] is '2':     
+        d['EMPLOYEE GENDER'] = "F"
+    d['GENDER OF CONTACT'] = row['GENDER OF CONTACT']
+    wrangled_rows.append(d)
+    print(row['GENDER'], row['EMPLOYEE FIRST NAME'])
+   
+# write wrangled_rows into WRANGLED_FILE_NAME 
+
+with open(WRANGLED_FILE_NAME, 'w') as thefile:
+      c=DictWriter(thefile, fieldnames=WRANGLED_HEADERS)
+      c.writeheader()
+      for d in wrangled_rows:
+        c.writerow(d)
+
+
+

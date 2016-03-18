@@ -4,7 +4,6 @@ import requests
 import csv
 import json
 WASHINGTON_FILENAME = '9-2014.csv'
-BASE_PULITZER_BOARD_URL = 'http://www.pulitzer.org/cache/api/1/board/year/%s/raw.json'
 
 washington_race_data = list(csv.reader(open(WASHINGTON_FILENAME)))
 

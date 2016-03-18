@@ -2,8 +2,8 @@ from os.path import join, basename
 import json
 BABY_DATA_DIR = join('tempdata', 'babynames')
 WRANGLED_DATA_FILENAME = join(BABY_DATA_DIR, 'wrangledbabynames.json')
-START_YEAR = 1900
-END_YEAR = 1991
+START_YEAR = 2011
+END_YEAR = 2014
 years = list(range(START_YEAR, END_YEAR, 5))
 years.append(2014) # just to get extra names in there
 

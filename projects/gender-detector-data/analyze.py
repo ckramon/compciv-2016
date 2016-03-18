@@ -1,102 +1,195 @@
-from settings import CLASSIFIED_DATA_FILENAME
 from os.path import join
-from csv import DictReader
+from csv import DictReader, DictWriter
+from gender import detect_gender
+DATA_DIR = 'data'
 
-all_members = list(DictReader(open(CLASSIFIED_DATA_FILENAME)))
-# people are in the list multiple times
-# so create a dictionary based on nid to get a unique list
-unique_members = {}
-for d in all_members:
-    unique_members[d['nid']] = d
+CLASSIFIED_DATA_FILENAME = join(DATA_DIR, 'classified-data.csv')
 
-# Now, go through each unique member and put them
-# in a gender list
-genderdict = {'M': [], 'F': [], 'NA': []}
-for nid, person in unique_members.items():
-    gd = person['gender']
-    genderdict[gd].append(person)
+all_rows = list(DictReader(open(CLASSIFIED_DATA_FILENAME)))
 
-unique_member_count = len(unique_members)
-
-print("Since 1968, the estimated gender breakdown for the Pulitzer Prize Board membership is:")
-for gd in ['F', 'M', 'NA']:
-    gendered_members = genderdict[gd]
-    ratio = round(100 * len(gendered_members)/unique_member_count)
-    print("\t" + gd + ':', len(gendered_members), str(ratio) + '%')
+unique_officers = {}
+for d in all_rows:
+    name = (d['full_name'], d['gender'], d['EMPLOYEE GENDER'])
+    if unique_officers.get(name):
+        unique_officers[name] += 1
+    else:
+        unique_officers[name] = 1
 
 
+# gender detected gender
 
-
-#######################
-# Now let's do this same calculation by decade:
-print("-----------------------------------------")
-print("Now let's do a decade-by-decade breakdown")
-for decade in [1960, 1970, 1980, 1990, 2000, 2010]:
-    # because the data came in CSV, the "year" for each member row is still a string
-    # so we can still take advantage of it
-    decade_members = []
-    for member in all_members:
-        dyr = member['year'][0:3] + '0' # i.e. "1968" is now "196" + "0"
-        if int(dyr) == decade:
-            decade_members.append(member)
-    # now that decade_members contains all members in a given decade
-    # we can repeat the previous rigamrole of getting unique_members
-    # and doing genderdict, etc.
-    # ...mind that you use decade_members instead of all_members
-    unique_members = {}
-    for d in decade_members:
-        unique_members[d['nid']] = d
-
-    genderdict = {'M': [], 'F': [], 'NA': []}
-    for nid, person in unique_members.items():
-        gd = person['gender']
-        genderdict[gd].append(person)
-
-    unique_member_count = len(unique_members)
-    print(decade)
-    for gd in ['F', 'M', 'NA']:
-        gendered_members = genderdict[gd]
-        ratio = round(100 * len(gendered_members)/unique_member_count)
-        print("\t" + gd + ':', len(gendered_members), str(ratio) + '%')
+male_count = 0
+female_count = 0
+for o in unique_officers.keys():
+    o_gender = o[1]
+    
+    if o_gender == 'M':
+        male_count += 1
+    
+    elif o_gender == 'F':
+        female_count += 1
 
 
 
+print("There are", male_count, "males")
+print("There are", female_count, "females")
+print(male_count/female_count)
+
+# actual listed gender
+
+male_count = 0
+female_count = 0
+for o in unique_officers.keys():
+    o_gender = o[2]
+    
+    if o_gender == 'M':
+        male_count += 1
+    
+    elif o_gender == 'F':
+        female_count += 1
 
 
 
-# And hell, let's do it year by year and just sloppily paste the code in
-# from above
-print("-----------------------------------------")
-print("Now let's do a year-by-year breakdown")
-for year in range(1968, 2016): # ugh, hardcoding in the min/max year...
-    year_members = []
-    for member in all_members:
-        # because the data came in CSV, the "year" for each member row is still a string
-        # so we need to typecast it to do a comparison
-        if int(member['year']) == year:
-            year_members.append(member)
-    # now that year_members contains all members in a given year
-    # we can repeat the previous rigamrole of getting unique_members
-    # and doing genderdict, etc.
-    # ...mind that you use year_members instead of all_members/decade_members
+print("There are", male_count, "males")
+print("There are", female_count, "females")
+print(male_count/female_count)
+
+# gender of offenders
 
 
 
-    if year_members:
-        # note that 1976 doesn't exist, among other years
-        # so we set this conditional to skip if year_members is empty...
-        unique_members = {}
-        for d in year_members:
-            unique_members[d['nid']] = d
+###
 
-        genderdict = {'M': [], 'F': [], 'NA': []}
-        for nid, person in unique_members.items():
-            gd = person['gender']
-            genderdict[gd].append(person)
+from collections import defaultdict
 
-        unique_member_count = len(unique_members)
-        print(year)
-        for gd in ['F', 'M', 'NA']:
-            gendered_members = genderdict[gd]
-            ratio = round(100 * len(gendered_members)/unique_member_count)
-            print("\t" + gd + ':', len(gendered_members), str(ratio) + '%')
+# male_cop_tally = {'M': 0, 'F': 0}
+# female_cop_tally = {'M': 0, 'F': 0}
+
+male_cop_tally = defaultdict(int)
+female_cop_tally = defaultdict(int)
+
+
+for row in all_rows:
+    cop_gender = row['EMPLOYEE GENDER']
+    stopped_gender = row['GENDER OF CONTACT']
+
+    if cop_gender == 'M':
+        male_cop_tally[stopped_gender] += 1
+    elif cop_gender == 'F':
+        female_cop_tally[stopped_gender] +=1
+print(male_cop_tally) 
+print(female_cop_tally)
+
+male_gender_ratio = (male_cop_tally['M'] + 1) / (male_cop_tally['F'] + 1)
+female_gender_ratio = (female_cop_tally['M'] + 1) / (female_cop_tally['F'] + 1)
+
+print(male_gender_ratio)
+print(female_gender_ratio)
+
+male_cop_tally = defaultdict(int)
+female_cop_tally = defaultdict(int)
+
+
+for row in all_rows:
+    cop_gender = row['EMPLOYEE GENDER']
+    stopped_race = row['RACE OF CONTACT']
+    if cop_gender == 'M':
+        male_cop_tally[stopped_race] += 1
+    elif cop_gender == 'F':
+        female_cop_tally[stopped_race] +=1
+
+
+print(male_cop_tally) 
+print(female_cop_tally)
+
+male_cop_tally = defaultdict(int)
+female_cop_tally = defaultdict(int)
+
+
+for row in all_rows:
+    cop_gender = row['EMPLOYEE GENDER']
+    stop_time = row['TIME OF STOP']
+    if cop_gender == 'M':
+        male_cop_tally[stop_time] += 1
+    elif cop_gender == 'F':
+        female_cop_tally[stop_time] +=1
+
+
+print(male_cop_tally) 
+print(female_cop_tally)
+
+# male_gender_ratio = (male_cop_tally['M'] + 1) / (male_cop_tally['F'] + 1)
+# female_gender_ratio = (female_cop_tally['M'] + 1) / (female_cop_tally['F'] + 1)
+
+# male_count = 0
+# female_count = 0
+# for o in unique_officers.keys():
+#     o_gender = o[4]
+    
+#     if o_gender == 'M':
+#         male_count += 1
+    
+#     elif o_gender == 'F':
+#         female_count += 1
+
+
+
+# print("There are", male_count, "males")
+# print("There are", female_count, "females")
+# print(male_count/female_count)
+
+# gender ratio of officers to offenders
+
+
+
+# genderdict = {'M': [], 'F': []}
+# for gid, person in unique_officers.items():
+#     gd = person['GENDER']
+#     genderdict[gd].append(person)
+
+
+
+# genderdict = {'M': [], 'F': []}
+# for gid, person in unique_officers.items():
+#     gd = person['GENDER']
+#     genderdict[gd].append(person)
+
+# unique_officer_count = len(unique_officers)
+
+# # look at the ratio of female to male officers involved in highway stops in Washington
+# for gd in ['F', 'M']:
+#     gendered_officers = genderdict[gd]
+#     print("For traffic stops in the state of Washington, the estimated gender breakdown for officers is:")
+# for gd in ['F', 'M']:
+#     gendered_officers = genderdict[gd]
+#     ratio = round(100 * len(gendered_officers)/unique_officer_count)
+#     print("\t" + gd + ':', len(gendered_officers), str(ratio) + '%')
+    
+# #     counted_gender = []
+# #     for row in datarows:
+# #         d = {}
+# #         ct += 1
+# #         print("Gender:", row['GENDER'], ct)
+
+# # look at the ratio of female to male non white officers involved in highway stops in Washington        
+
+# with open(CLASSIFIED_DATA_FILENAME) as r:
+#     datarows = list(DictReader(r))
+    
+#     ct = 0
+#     for row in datarows:
+#         gender = extract_usable_name(row['EMPLOYEE RACE'])
+#         ct += 1
+#         print("Row:", ct, gender, ['EMPLOYEE RACE'])
+       
+
+
+# # look at the ratio of female officers to female offenders in Washington 
+
+# # look at the ratio of female officers to male offenders in Washington 
+
+# # look at the ratio of male officers to male offenders in Washington 
+
+# # look at the ratio of male officers to female offenders in Washington 
+   
+
